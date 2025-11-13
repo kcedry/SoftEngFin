@@ -1,11 +1,14 @@
 .navbar {
-    background-color: #282c34;
+    margin: 20px 0;
+    width: 100%;
+    height: fit-content;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0.8rem 2rem;
     color: white;
     font-family: 'Inter', sans-serif;
+    min-height: 30px;
+    border-radius: 10px;
   }
   
   .nav-logo {
@@ -16,14 +19,19 @@
   
   .nav-links {
     list-style: none;
+    width: 40%;
     display: flex;
-    gap: 1.5rem;
+    justify-content: space-around;
+    align-items: center;
     margin: 0;
     padding: 0;
+    background-color: #FEEEDB;
+    padding: 8px 16px;
+    border-radius: 24px;
   }
   
   .nav-links a {
-    color: white;
+    color: black;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
@@ -31,5 +39,10 @@
   
   .nav-links a:hover {
     color: #61dafb;
+  }
+
+
+  @media (max-width: 460px){
+
   }
   
