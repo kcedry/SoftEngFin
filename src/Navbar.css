@@ -9,15 +9,26 @@
     font-family: 'Inter', sans-serif;
     min-height: 30px;
     border-radius: 10px;
-  }
-  
-  .nav-logo {
+}
+
+.logo{
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+}
+
+a {
+    display: flex;
+    align-items: center;
+}
+
+.nav-logo {
     color: #61dafb;
     font-weight: 700;
     font-size: 1.5rem;
-  }
-  
-  .nav-links {
+}
+
+.nav-links {
     list-style: none;
     width: 40%;
     display: flex;
@@ -28,21 +39,18 @@
     background-color: #FEEEDB;
     padding: 8px 16px;
     border-radius: 24px;
-  }
-  
-  .nav-links a {
+}
+
+.nav-links a {
     color: black;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
-  }
-  
-  .nav-links a:hover {
+}
+
+.nav-links a:hover {
     color: #61dafb;
-  }
+}
 
 
-  @media (max-width: 460px){
-
-  }
-  
+@media (max-width: 460px) {}
