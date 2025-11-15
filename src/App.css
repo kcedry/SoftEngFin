@@ -1,9 +1,13 @@
 body {
   background-color: #9EBF27;
+  justify-content: center;
+  align-items: center;
 }
 
 .App {
   text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .App-logo {
@@ -27,15 +31,42 @@ body {
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.Dashboard {
+  background-color: #FEEEDB;
+  width: 80vw;
+  margin: 0 auto;
+  padding: 20px 40px;
+  border-radius: 20px;
+  box-sizing: border-box;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.Dashboard-container{
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.Dashboard-column{
+  flex: 1;
+  padding: 10px;
+  background-color: #f6e2ca;
+  border-radius: 10px;
+   box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .Dashboard-container {
+    flex-direction: column; 
+    align-items: center; 
+    gap: 10px;
   }
-  to {
-    transform: rotate(7000deg);
+
+  .Dashboard-column {
+    width: 100%; 
+    margin-bottom: 10px; 
   }
+}
+
+.Funds {
+  background-color: #9EBF27;
 }

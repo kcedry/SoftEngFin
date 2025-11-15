@@ -7,17 +7,27 @@ function App() {
     <div className="App">
       <Navbar />
       <main>
-        <p>Edit <code>src/App.js</code> and save to reload.</p>
-        <a
-          className="App-link"
-          href="https://react.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <div className="Dashboard">
+          <h1>Hello!</h1>
+         
+            <h1>$100</h1>
+
+            <div className='Dashboard-container'>
+
+              {/* Column 1 */}
+              <div className="Dashboard-column">
+                <div className="Funds">Hi</div>
+              </div>
+
+              {/* Column 2 */}
+              <div className="Dashboard-column">
+                <h1> Hi </h1>
+              </div>
+
+            </div>
+          </div>
       </main>
-    </div>
+    </div> /* APP DIV FINISH */
   );
 }
 
