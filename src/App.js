@@ -8,24 +8,25 @@ function App() {
       <Navbar />
       <main>
         <div className="Dashboard">
-          <h1>Hello!</h1>
-         
-            <h1>$100</h1>
+          <h1>UwU</h1>
 
-            <div className='Dashboard-container'>
+          <div className='Dashboard-container'>
 
-              {/* Column 1 */}
-              <div className="Dashboard-column">
-                <div className="Funds">Hi</div>
+            {/* Column 1 */}
+            <div className="Dashboard-column">
+              <div className="Funds">
+                <h1 className='left'> Welcome, Spongebob</h1>
+                <h1 className='right'>$100</h1>
               </div>
-
-              {/* Column 2 */}
-              <div className="Dashboard-column">
-                <h1> Hi </h1>
-              </div>
-
             </div>
+
+            {/* Column 2 */}
+            <div className="Dashboard-column">
+              <h1> Hi </h1>
+            </div>
+
           </div>
+        </div>
       </main>
     </div> /* APP DIV FINISH */
   );
