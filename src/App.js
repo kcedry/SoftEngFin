@@ -1,11 +1,18 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import './App.css';
 import Navbar from './Navbar';
+import SavingsPage from './SavingsPage';
 
 function App() {
   return (
     <div className="App">
-      <Navbar />
+      <Router>
+        <Navbar />
+          <Routes>
+            <Route path="/savings" element={<SavingsPage />} />
+          </Routes>
+      </Router>
       <main>
         <div className="Dashboard">
           <h1>UwU</h1>

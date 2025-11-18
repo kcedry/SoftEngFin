@@ -1,16 +1,19 @@
 import React from 'react';
 import './Navbar.css';
-import logo from "./img/logo.png"
+import logo from "./img/logo.png";
+import { Link } from "react-router-dom";
 
 function Navbar() {
   return (
     <nav className="navbar">
       <ul className="nav-links">
-        <li><a href="#home">Saving</a></li>
+        <li><Link to="/savings">Savings</Link></li>
         <p className="vbar">|</p>
-        <li><a href="#about"><img src={logo} alt='logo' className='logo'/></a></li>
+
+        <li><Link to="/"><img src={logo} alt='logo' className='logo'/></Link></li>
         <p className="vbar">|</p>
-        <li><a href="#contact">Profile</a></li>
+
+        <li><Link to="/profile">Profile</Link></li>
       </ul>
     </nav>
   );
