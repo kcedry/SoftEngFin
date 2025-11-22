@@ -1,51 +1,78 @@
-// HomePage.js
 import React, { useState, useEffect } from 'react';
 import './HomePage.css';
 import Navbar from "./Navbar";
 
 function HomePage() {
+
+    // ---- FUNDS (MAIN BALANCE) ----
     const [funds, setFunds] = useState(() => {
         const saved = localStorage.getItem('funds');
-        return saved ? parseFloat(saved) : 100;
+        return saved ? Number(saved) : 100;
     });
 
-    // Update localStorage whenever funds change
+    // Save funds to localStorage
     useEffect(() => {
         localStorage.setItem('funds', funds);
     }, [funds]);
 
-    // Deposit & Withdraw
+
+    // ---- DEPOSIT ----
     const handleDeposit = () => {
         const amount = parseFloat(prompt("Enter deposit amount:"));
-        if (!isNaN(amount) && amount > 0) setFunds(prev => prev + amount);
-        else alert("Enter a valid number");
+        if (!isNaN(amount) && amount > 0) {
+            setFunds(prev => prev + amount);
+        } else {
+            alert("Enter a valid number");
+        }
     };
 
+
+    // ---- WITHDRAW ----
     const handleWithdraw = () => {
         const amount = parseFloat(prompt("Enter withdraw amount:"));
         if (!isNaN(amount) && amount > 0) {
-            if (amount <= funds) setFunds(prev => prev - amount);
-            else alert("Insufficient funds");
-        } else alert("Enter a valid number");
+            if (amount <= funds) {
+                setFunds(prev => prev - amount);
+            } else {
+                alert("Insufficient funds");
+            }
+        } else {
+            alert("Enter a valid number");
+        }
     };
 
-    // MTS button: add to SavingsPage totalSavings
+
+    // ---- MTS → SAVINGS ----
+    // Saves amount in `pendingAdd` so SavingsPage can add it to totalSavings
     const handleMTS = () => {
         const amount = parseFloat(prompt("Enter amount to move to savings:"));
         if (!isNaN(amount) && amount > 0) {
             if (amount <= funds) {
+
+                // Subtract from funds
                 setFunds(prev => prev - amount);
-                // Store moved amount in localStorage so SavingsPage can read it
-                const pending = parseFloat(localStorage.getItem('pendingAdd')) || 0;
-                localStorage.setItem('pendingAdd', pending + amount);
+
+                // Add to pendingAdd (SavingsPage will process it)
+                const pending = Number(localStorage.getItem("pendingAdd")) || 0;
+                localStorage.setItem("pendingAdd", pending + amount);
+
                 alert(`₱${amount} moved to Savings!`);
             } else {
                 alert("Insufficient funds");
             }
+        } else {
+            alert("Enter a valid number");
         }
     };
 
-    const formattedFunds = `$${funds.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    // ---- DISPLAY FUNDS ----
+    const formattedFunds =
+        `₱${funds.toLocaleString("en-PH", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        })}`;
+
 
     return (
         <div className="App">
@@ -53,7 +80,10 @@ function HomePage() {
                 <div className="Dashboard">
                     <h1 style={{ fontSize: "50px" }}>Percents</h1>
                     <br />
+
                     <div className="Dashboard-container">
+
+                        {/* COLUMN 1 */}
                         <div className="Dashboard-column">
                             <div className="Funds">
                                 <h2 className="Funds-name">Welcome, Spongebob</h2>
@@ -65,11 +95,14 @@ function HomePage() {
                                 <button onClick={handleDeposit}>DEPOSIT</button>
                                 <button onClick={handleWithdraw}>WITHDRAW</button>
                             </div>
+
                             <div>
                                 <h1>Savings Plans Display</h1>
                             </div>
                         </div>
 
+
+                        {/* COLUMN 2 */}
                         <div className="Dashboard-column">
                             <h1>GRAPH</h1>
                             <div className="C2-Description">
@@ -77,6 +110,7 @@ function HomePage() {
                                 <h3>Total Funds Withdrawn: $1,000,000</h3>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </main>

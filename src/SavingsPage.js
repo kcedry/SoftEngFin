@@ -2,26 +2,43 @@ import React, { useState, useEffect } from "react";
 import "./SavingsPage.css";
 
 export default function SavingsPage() {
-  // Total savings in SavingsPage
+
+  // --- TOTAL SAVINGS ---
   const [totalSavings, setTotalSavings] = useState(() => {
     const saved = localStorage.getItem("totalSavings");
     return saved ? Number(saved) : 0;
   });
 
-  // Funds from HomePage
+  // --- FUNDS FROM HOMEPAGE ---
   const [funds, setFunds] = useState(() => {
     const saved = localStorage.getItem("funds");
     return saved ? Number(saved) : 100;
   });
 
-  const [goals, setGoals] = useState([]);
+  const [goals, setGoals] = useState(() => {
+    const saved = localStorage.getItem("goals");
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [showAddGoal, setShowAddGoal] = useState(false);
   const [newGoalName, setNewGoalName] = useState("");
   const [newGoalTarget, setNewGoalTarget] = useState("");
   const [customAmounts, setCustomAmounts] = useState({});
   const [generalAmount, setGeneralAmount] = useState("");
 
-  /* -------------------- Persist totalSavings & funds -------------------- */
+  /* ---------------------------------------------------
+      PROCESS PENDING MTS TRANSFERS (funds → totalSavings)
+  ------------------------------------------------------*/
+  useEffect(() => {
+    const pending = Number(localStorage.getItem("pendingAdd"));
+
+    if (pending && pending > 0) {
+      setTotalSavings(prev => prev + pending);
+      localStorage.removeItem("pendingAdd");
+    }
+  }, []);
+
+  /* ---------------- SAVE TO STORAGE ---------------- */
   useEffect(() => {
     localStorage.setItem("totalSavings", totalSavings);
   }, [totalSavings]);
@@ -30,13 +47,20 @@ export default function SavingsPage() {
     localStorage.setItem("funds", funds);
   }, [funds]);
 
+  useEffect(() => {
+    localStorage.setItem("goals", JSON.stringify(goals));
+  }, [goals]);
+
   /* -------------------------------------------------- 
-     GENERAL SAVINGS FUNCTIONS
+  GENERAL SAVINGS FUNCTIONS 
   ----------------------------------------------------- */
   const handleGeneralAdd = () => {
     const amount = Number(generalAmount);
     if (!amount || amount <= 0) return;
-    if (amount > funds) { alert("Not enough funds in HomePage!"); return; }
+    if (amount > funds) {
+      alert("Not enough funds!");
+      return;
+    }
 
     setTotalSavings(prev => prev + amount);
     setFunds(prev => prev - amount);
@@ -46,7 +70,10 @@ export default function SavingsPage() {
   const handleGeneralWithdraw = () => {
     const amount = Number(generalAmount);
     if (!amount || amount <= 0) return;
-    if (amount > totalSavings) { alert("Not enough savings to withdraw!"); return; }
+    if (amount > totalSavings) {
+      alert("Not enough savings!");
+      return;
+    }
 
     setTotalSavings(prev => prev - amount);
     setFunds(prev => prev + amount);
@@ -54,13 +81,15 @@ export default function SavingsPage() {
   };
 
   /* --------------------------------------------------- 
-      GOAL FUNCTIONS
-   ----------------------------------------------------- */
+  GOAL FUNCTIONS 
+  ----------------------------------------------------- */
   const handleAddMoney = (goalId) => {
     const amount = Number(customAmounts[goalId]);
     if (!amount || amount <= 0) return;
-    if (amount > funds) { alert("Not enough funds in HomePage!"); return; }
-
+    if (amount > funds) {
+      alert("Not enough funds!");
+      return;
+    }
 
     setGoals(goals.map(goal =>
       goal.id === goalId
@@ -70,18 +99,19 @@ export default function SavingsPage() {
 
     setTotalSavings(prev => prev + amount);
     setFunds(prev => prev - amount);
+
     setCustomAmounts({ ...customAmounts, [goalId]: "" });
-
-
   };
 
   const handleWithdrawMoney = (goalId) => {
     const amount = Number(customAmounts[goalId]);
     if (!amount || amount <= 0) return;
 
-
     const goal = goals.find(g => g.id === goalId);
-    if (!goal || amount > goal.current) { alert("Not enough in this goal!"); return; }
+    if (!goal || amount > goal.current) {
+      alert("Not enough in this goal!");
+      return;
+    }
 
     setGoals(goals.map(goal =>
       goal.id === goalId
@@ -91,20 +121,23 @@ export default function SavingsPage() {
 
     setTotalSavings(prev => prev - amount);
     setFunds(prev => prev + amount);
-    setCustomAmounts({ ...customAmounts, [goalId]: "" });
 
+    setCustomAmounts({ ...customAmounts, [goalId]: "" });
   };
 
   const handleRemoveGoal = (goalId) => {
-    if (!window.confirm("Are you sure you want to remove this goal?")) return;
+    if (!window.confirm("Remove this goal?")) return;
+
     const goalToRemove = goals.find(g => g.id === goalId);
-    if (goalToRemove) setTotalSavings(prev => Math.max(prev - goalToRemove.current, 0));
-    setGoals(goals.filter(goal => goal.id !== goalId));
+    if (goalToRemove) {
+      setTotalSavings(prev => Math.max(prev - goalToRemove.current, 0));
+    }
+
+    setGoals(goals.filter(g => g.id !== goalId));
   };
 
   const addNewGoal = () => {
     if (!newGoalName || !newGoalTarget) return;
-
 
     const newGoal = {
       id: Date.now(),
@@ -117,103 +150,161 @@ export default function SavingsPage() {
     setNewGoalName("");
     setNewGoalTarget("");
     setShowAddGoal(false);
-
-
   };
 
   const handleAmountChange = (goalId, value) => {
     setCustomAmounts({ ...customAmounts, [goalId]: value });
   };
 
-  const getProgressPercentage = (current, target) => Math.min((current / target) * 100, 100);
+  const getProgressPercentage = (current, target) =>
+    Math.min((current / target) * 100, 100);
 
   /* --------------------------------------------------- 
-      RENDER
-   ----------------------------------------------------- */
-  return (<div className="savingsPage"> <div className="container">
+  RENDER 
+  ----------------------------------------------------- */
+  return (
+    <div className="savingsPage">
+      <div className="container">
 
-    ```
-    {/* --------------------------- GENERAL SAVINGS --------------------------- */}
-    <div className="header">
-      <div className="generalSection">
-        <h2>General Savings</h2>
-        <input
-          type="number"
-          placeholder="Enter amount"
-          value={generalAmount}
-          onChange={e => setGeneralAmount(e.target.value)}
-          className="generalInput"
-        />
-        <div className="buttonGroup">
-          <button className="button btnAdd" onClick={handleGeneralAdd}>Add to Savings</button>
-          <button className="button btnWithdraw" onClick={handleGeneralWithdraw}>Withdraw</button>
-        </div>
-      </div>
+        {/* --------------------------- GENERAL SAVINGS --------------------------- */}
+        <div className="header">
+          <div className="generalSection">
+            <h2>General Savings</h2>
 
-      <div>
-        <h1 className="headerTitle">Welcome, Spongebob!</h1>
-        <p className="headerText">Track your savings goals</p>
-      </div>
+            <input
+              type="number"
+              placeholder="Enter amount"
+              value={generalAmount}
+              onChange={e => setGeneralAmount(e.target.value)}
+              className="generalInput"
+            />
 
-      <div className="totalSavings">
-        <p className="totalLabel">Total Savings</p>
-        <h2 className="totalAmount">₱{totalSavings.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
-      </div>
-    </div>
-
-    {/* --------------------------- GOALS GRID --------------------------- */}
-    <div className="goalsGrid">
-      {goals.map(goal => {
-        const progress = getProgressPercentage(goal.current, goal.target);
-        return (
-          <div key={goal.id} className="goalCard">
-            <button className="removeButton" onClick={() => handleRemoveGoal(goal.id)}>×</button>
-            <h3 className="goalTitle">{goal.name}</h3>
-            <p className="goalAmount">₱{goal.current.toLocaleString("en-PH", { minimumFractionDigits: 2 })} / ₱{goal.target.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</p>
-            <div className="progressBar"><div className="progressFill" style={{ width: `${progress}%` }} /></div>
-            <div className="goalInfo">
-              <span>{progress.toFixed(1)}% Complete</span>
-              <span>₱{(goal.target - goal.current).toLocaleString("en-PH", { minimumFractionDigits: 2 })} to go</span>
-            </div>
-
-            <input type="number" placeholder="Enter amount" value={customAmounts[goal.id] || ""} onChange={e => handleAmountChange(goal.id, e.target.value)} className="amountInput" />
             <div className="buttonGroup">
-              <button className="button btnAdd" onClick={() => handleAddMoney(goal.id)}>Add</button>
-              <button className="button btnWithdraw" onClick={() => handleWithdrawMoney(goal.id)}>Withdraw</button>
+              <button className="button btnAdd" onClick={handleGeneralAdd}>Add to Savings</button>
+              <button className="button btnWithdraw" onClick={handleGeneralWithdraw}>Withdraw</button>
             </div>
           </div>
-        );
-      })}
 
-      {/* --------------------------- ADD GOAL CARD --------------------------- */}
-      {!showAddGoal ? (
-        <div className="addGoalCard" onClick={() => setShowAddGoal(true)}>
-          <span className="plusIcon">+</span>
-          <h3>Add New Goal</h3>
-        </div>
-      ) : (
-        <div className="goalCard">
-          <h3 className="goalTitle">Create New Goal</h3>
-          <input type="text" placeholder="Goal Name" value={newGoalName} onChange={e => setNewGoalName(e.target.value)} className="input" />
-          <input type="number" placeholder="Target Amount (₱)" value={newGoalTarget} onChange={e => setNewGoalTarget(e.target.value)} className="input" />
-          <div className="buttonGroup">
-            <button className="button btnCreate" onClick={addNewGoal}>Create</button>
-            <button className="button btnCancel" onClick={() => { setShowAddGoal(false); setNewGoalName(""); setNewGoalTarget(""); }}>Cancel</button>
+          <div>
+            <h1 className="headerTitle">Welcome, Spongebob!</h1>
+            <p className="headerText">Track your savings goals</p>
+          </div>
+
+          <div className="totalSavings">
+            <p className="totalLabel">Total Savings</p>
+            <h2 className="totalAmount">
+              ₱{totalSavings.toLocaleString("en-PH", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </h2>
           </div>
         </div>
-      )}
+
+        {/* --------------------------- GOALS GRID --------------------------- */}
+        <div className="goalsGrid">
+          {goals.map(goal => {
+            const progress = getProgressPercentage(goal.current, goal.target);
+            return (
+              <div key={goal.id} className="goalCard">
+                <button className="removeButton" onClick={() => handleRemoveGoal(goal.id)}>×</button>
+
+                <h3 className="goalTitle">{goal.name}</h3>
+                <p className="goalAmount">
+                  ₱{goal.current.toLocaleString("en-PH", { minimumFractionDigits: 2 })} /
+                  ₱{goal.target.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
+                </p>
+
+                <div className="progressBar">
+                  <div className="progressFill" style={{ width: `${progress}%` }} />
+                </div>
+
+                <div className="goalInfo">
+                  <span>{progress.toFixed(1)}% Complete</span>
+                  <span>
+                    ₱{(goal.target - goal.current).toLocaleString("en-PH", {
+                      minimumFractionDigits: 2,
+                    })} to go
+                  </span>
+                </div>
+
+                <input
+                  type="number"
+                  placeholder="Enter amount"
+                  value={customAmounts[goal.id] || ""}
+                  onChange={e => handleAmountChange(goal.id, e.target.value)}
+                  className="amountInput"
+                />
+
+                <div className="buttonGroup">
+                  <button className="button btnAdd" onClick={() => handleAddMoney(goal.id)}>Add</button>
+                  <button className="button btnWithdraw" onClick={() => handleWithdrawMoney(goal.id)}>Withdraw</button>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* --------------------------- ADD GOAL CARD --------------------------- */}
+          {!showAddGoal ? (
+            <div className="addGoalCard" onClick={() => setShowAddGoal(true)}>
+              <span className="plusIcon">+</span>
+              <h3>Add New Goal</h3>
+            </div>
+          ) : (
+            <div className="goalCard">
+              <h3 className="goalTitle">Create New Goal</h3>
+
+              <input
+                type="text"
+                placeholder="Goal Name"
+                value={newGoalName}
+                onChange={e => setNewGoalName(e.target.value)}
+                className="input"
+              />
+
+              <input
+                type="number"
+                placeholder="Target Amount (₱)"
+                value={newGoalTarget}
+                onChange={e => setNewGoalTarget(e.target.value)}
+                className="input"
+              />
+
+              <div className="buttonGroup">
+                <button className="button btnCreate" onClick={addNewGoal}>Create</button>
+                <button className="button btnCancel" onClick={() => { setShowAddGoal(false); setNewGoalName(""); setNewGoalTarget(""); }}>Cancel</button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* --------------------------- STATS --------------------------- */}
+        <div className="stats">
+          <div className="statItem">
+            <h2 className="statNumber">{goals.length}</h2>
+            <p className="statLabel">Active Goals</p>
+          </div>
+
+          <div className="statItem">
+            <h2 className="statNumber">
+              ₱{goals.reduce((sum, goal) => sum + goal.current, 0).toLocaleString("en-PH", {
+                minimumFractionDigits: 2,
+              })}
+            </h2>
+            <p className="statLabel">Total Saved</p>
+          </div>
+
+          <div className="statItem">
+            <h2 className="statNumber">
+              ₱{goals.reduce((sum, goal) => sum + goal.target, 0).toLocaleString("en-PH", {
+                minimumFractionDigits: 2,
+              })}
+            </h2>
+            <p className="statLabel">Total Target</p>
+          </div>
+        </div>
+
+      </div>
     </div>
-
-    {/* --------------------------- STATS --------------------------- */}
-    <div className="stats">
-      <div className="statItem"><h2 className="statNumber">{goals.length}</h2><p className="statLabel">Active Goals</p></div>
-      <div className="statItem"><h2 className="statNumber">₱{goals.reduce((sum, goal) => sum + goal.current, 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</h2><p className="statLabel">Total Saved</p></div>
-      <div className="statItem"><h2 className="statNumber">₱{goals.reduce((sum, goal) => sum + goal.target, 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</h2><p className="statLabel">Total Target</p></div>
-    </div>
-
-  </div>
-  </div>
-
-
   );
 }
