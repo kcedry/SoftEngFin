@@ -148,3 +148,24 @@ button {
         font-size: 24px;
     }
 }
+
+/* Scrollbar Styling */
+.gscrollbar {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 10px;
+    height: 280px;
+    box-sizing: border-box;
+}
+
+.gscrollbar::-webkit-scrollbar {
+    height: 8px;
+    /* height for horizontal scrollbar */
+    background-color: #00000000;
+    /* black background */
+}
+
+.gscrollbar::-webkit-scrollbar-thumb {
+    background-color: #9ebf27;
+    border-radius: 0px;
+}

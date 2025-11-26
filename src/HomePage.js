@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './HomePage.css';
 import Navbar from "./Navbar";
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Brush } from "recharts";
 
 
 function HomePage() {
@@ -69,6 +69,7 @@ function HomePage() {
 
     const xAxisLabels = getAllDaysOfMonth();
 
+
     // GRAPH HELPER FUNCTION FOR CATEGORIZATION
     const graphData = (() => {
         const filtered = history.filter(h => h.type === viewType); // Filter by deposit or withdraw
@@ -80,9 +81,9 @@ function HomePage() {
             // Format key for grouping
             let key;
             if (viewRange === "daily") {
-                key = date.toLocaleDateString("en-US", { month: "short", day: "numeric" }); // e.g., "Nov 21"
+                key = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
             } else {
-                key = date.toLocaleDateString("en-US", { month: "short", year: "numeric" }); // e.g., "Nov 2025"
+                key = date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
             }
 
             grouped[key] = (grouped[key] || 0) + entry.amount;
@@ -101,7 +102,7 @@ function HomePage() {
                 return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
             });
         } else {
-            // For monthly, you could show all months of the year
+            // For monthly
             const now = new Date();
             const year = now.getFullYear();
             allKeys = Array.from({ length: 12 }, (_, i) => {
@@ -116,6 +117,11 @@ function HomePage() {
             amount: grouped[key] || 0
         }));
     })();
+
+    const visibleItems = viewRange === "daily" ? 10 : 10;
+    const pointWidth = 60;
+    const chartWidth = graphData.length * pointWidth;
+    const containerWidth = visibleItems * pointWidth;
 
 
 
@@ -180,10 +186,8 @@ function HomePage() {
         if (!isNaN(amount) && amount > 0) {
             if (amount <= funds) {
 
-                // Subtract from funds
                 setFunds(prev => prev - amount);
 
-                // Add to pendingAdd (SavingsPage will process it)
                 const pending = Number(localStorage.getItem("pendingAdd")) || 0;
                 localStorage.setItem("pendingAdd", pending + amount);
 
@@ -224,7 +228,7 @@ function HomePage() {
         <div className="App">
             <main>
                 <div className="Dashboard">
-                    <h1 style={{ fontSize: "50px" }}>Percents</h1>
+                    <h1 style={{ fontSize: "50px" }}>User Dashboard</h1>
                     <br />
 
                     <div className="Dashboard-container">
@@ -249,7 +253,8 @@ function HomePage() {
 
 
                         {/* COLUMN 2 */}
-                        <div className="Dashboard-column">
+                        <div className="Dashboard-column" style={{ padding: "20px" }}>
+                            <h1>GRAPH</h1>
                             <div style={{ display: "flex", gap: "10px" }}>
                                 <button onClick={() => setViewType("deposit")}>Deposits</button>
                                 <button onClick={() => setViewType("withdraw")}>Withdrawals</button>
@@ -259,22 +264,27 @@ function HomePage() {
                             </div>
 
 
-                            <h1>GRAPH</h1>
-                            <div style={{ width: "100%", height: 300 }}>
-                                <LineChart data={graphData} width={500} height={300} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
+
+                            <div className="gscrollbar" style={{
+                                width: containerWidth, maxWidth: "100%", overflowX: "auto", overflowY: "hidden", paddingBottom: "10px", height: "280px", boxSizing: 'border-box',
+                            }} >
+                                <LineChart data={graphData} width={chartWidth} height={300} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}                                >
                                     <CartesianGrid strokeDasharray="3 3" />
 
-                                    {/* X-Axis with readable dates */}
                                     <XAxis
                                         dataKey="date"
-                                        angle={-45}       // rotate long labels
-                                        textAnchor="end"  // align text
-                                        interval={0}      // show every label
+                                        angle={-45}
+                                        textAnchor="end"
+                                        interval={0}
+                                        tick={{ fontSize: window.innerWidth < 768 ? 10 : 12, fill: "#000" }}
+                                        minTickGap={5}
+                                        stroke="#000"
                                     />
 
-                                    {/* Y-Axis */}
                                     <YAxis
-                                        label={{ value: "₱ Amount", angle: -90, position: "insideLeft", offset: 10 }}
+                                        label={{ value: "₱ Amount", angle: -90, position: "insideLeft", offset: 10, fill: "#000" }}
+                                        stroke="#000"
+                                        tick={{ fill: "#000" }}
                                     />
 
                                     <Tooltip />
@@ -282,14 +292,15 @@ function HomePage() {
                                     <Line
                                         type="monotone"
                                         dataKey="amount"
-                                        stroke="#8884d8"
-                                        strokeWidth={3}
-                                        dot={{ r: 4 }}
+                                        stroke="#9ebf27"
+                                        strokeWidth={2.88}
+                                        dot={{ r: window.innerWidth < 768 ? 2 : 4 }}
                                     />
                                 </LineChart>
                             </div>
 
-                            <div className="C2-Description">
+
+                            <div className="C2-Description" style={{ marginTop: "20px" }}>
                                 <h3>Total Funds Deposited: {"Php "}
                                     {totalDeposited.toLocaleString("en-PH", {
                                         minimumFractionDigits: 2
