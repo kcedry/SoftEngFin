@@ -4,23 +4,53 @@ import Navbar from "./Navbar";
 
 function HomePage() {
 
+    /*=========================================
+      DASHBOARD STATES & VALUES
+    ===========================================*/
+
     // ---- FUNDS (MAIN BALANCE) ----
     const [funds, setFunds] = useState(() => {
         const saved = localStorage.getItem('funds');
         return saved ? Number(saved) : 100;
     });
 
-    // Save funds to localStorage
+    // ---- TOTAL DEPOSITED ----
+    const [totalDeposited, setTotalDeposited] = useState(() => {
+        const saved = localStorage.getItem("totalDeposited");
+        return saved ? Number(saved) : 0;
+    });
+
+    // ---- TOTAL WITHDRAWN ----
+    const [totalWithdrawn, setTotalWithdrawn] = useState(() => {
+        const saved = localStorage.getItem("totalWithdrawn");
+        return saved ? Number(saved) : 0;
+    });
+
+    // Save to localStorage
     useEffect(() => {
         localStorage.setItem('funds', funds);
     }, [funds]);
 
+    useEffect(() => {
+        localStorage.setItem("totalDeposited", totalDeposited);
+    }, [totalDeposited]);
 
+    useEffect(() => {
+        localStorage.setItem("totalWithdrawn", totalWithdrawn);
+    }, [totalWithdrawn]);
+
+
+    /*=========================================
+      BUTTON FUNCTIONS
+    ===========================================*/
     // ---- DEPOSIT ----
     const handleDeposit = () => {
         const amount = parseFloat(prompt("Enter deposit amount:"));
         if (!isNaN(amount) && amount > 0) {
+
             setFunds(prev => prev + amount);
+            setTotalDeposited(prev => prev + amount);
+
         } else {
             alert("Enter a valid number");
         }
@@ -32,7 +62,10 @@ function HomePage() {
         const amount = parseFloat(prompt("Enter withdraw amount:"));
         if (!isNaN(amount) && amount > 0) {
             if (amount <= funds) {
+
                 setFunds(prev => prev - amount);
+                setTotalWithdrawn(prev => prev + amount);
+
             } else {
                 alert("Insufficient funds");
             }
@@ -42,8 +75,7 @@ function HomePage() {
     };
 
 
-    // ---- MTS → SAVINGS ----
-    // Saves amount in `pendingAdd` so SavingsPage can add it to totalSavings
+    // ---- Move To Savings [MTS] ---- [Saves amount in `pendingAdd` so SavingsPage can add it to totalSavings]
     const handleMTS = () => {
         const amount = parseFloat(prompt("Enter amount to move to savings:"));
         if (!isNaN(amount) && amount > 0) {
@@ -65,6 +97,21 @@ function HomePage() {
         }
     };
 
+    // [DEVTOOL!! REMOVE BEFORE DEPLOY] Resets the totals ahahahaha
+    const handleResetTotals = () => {
+        if (window.confirm("Reset TOTAL Deposits and Withdrawals to 0?")) {
+            setTotalDeposited(0);
+            setTotalWithdrawn(0);
+
+            localStorage.setItem("totalDeposited", 0);
+            localStorage.setItem("totalWithdrawn", 0);
+        }
+    };
+
+
+    /*=========================================
+      ACTUAL DASHBOARD
+    ===========================================*/
 
     // ---- DISPLAY FUNDS ----
     const formattedFunds =
@@ -106,8 +153,19 @@ function HomePage() {
                         <div className="Dashboard-column">
                             <h1>GRAPH</h1>
                             <div className="C2-Description">
-                                <h3>Total Funds Deposited: $0 💀</h3>
-                                <h3>Total Funds Withdrawn: $1,000,000</h3>
+                                <h3>Total Funds Deposited: {"Php "}
+                                    {totalDeposited.toLocaleString("en-PH", {
+                                        minimumFractionDigits: 2
+                                    })}</h3>
+                                <h3>Total Funds Withdrawn: {"Php "}
+                                    {totalWithdrawn.toLocaleString("en-PH", {
+                                        minimumFractionDigits: 2
+                                    })}</h3>
+
+                                <button onClick={handleResetTotals} style={{ marginTop: "10px" }}>
+                                    RESET TOTALS
+                                </button>
+
                             </div>
                         </div>
 
