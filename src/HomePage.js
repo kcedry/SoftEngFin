@@ -162,9 +162,11 @@ function HomePage() {
                                         minimumFractionDigits: 2
                                     })}</h3>
 
+                                {/* [DEVTOOL] COMMENT THIS BEFORE DEPLOY
                                 <button onClick={handleResetTotals} style={{ marginTop: "10px" }}>
                                     RESET TOTALS
                                 </button>
+                                 [DEVTOOL] COMMENT THIS BEFORE DEPLOY */}
 
                             </div>
                         </div>
