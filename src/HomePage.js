@@ -71,7 +71,6 @@ function HomePage() {
 
     // GRAPH HELPER FUNCTION FOR CATEGORIZATION
     const graphData = (() => {
-
         const filtered = history.filter(h => h.type === viewType); // Filter by deposit or withdraw
         const grouped = {}; // Group by date or month
 
@@ -81,22 +80,40 @@ function HomePage() {
             // Format key for grouping
             let key;
             if (viewRange === "daily") {
-                // Format as "Nov 21"
-                key = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                key = date.toLocaleDateString("en-US", { month: "short", day: "numeric" }); // e.g., "Nov 21"
             } else {
-                // Format as "Nov 2025"
-                key = date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+                key = date.toLocaleDateString("en-US", { month: "short", year: "numeric" }); // e.g., "Nov 2025"
             }
 
             grouped[key] = (grouped[key] || 0) + entry.amount;
         });
 
+        // --- NEW: Generate all labels for current month/day range ---
+        let allKeys = [];
+        if (viewRange === "daily") {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth(); // 0-indexed
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
 
+            allKeys = Array.from({ length: daysInMonth }, (_, i) => {
+                const date = new Date(year, month, i + 1);
+                return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            });
+        } else {
+            // For monthly, you could show all months of the year
+            const now = new Date();
+            const year = now.getFullYear();
+            allKeys = Array.from({ length: 12 }, (_, i) => {
+                const date = new Date(year, i, 1);
+                return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+            });
+        }
 
-        // Convert to array for Recharts
-        return Object.keys(grouped).map(key => ({
+        // Map allKeys to final array with amounts, default 0
+        return allKeys.map(key => ({
             date: key,
-            amount: grouped[key]
+            amount: grouped[key] || 0
         }));
     })();
 
